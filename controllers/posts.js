@@ -1,35 +1,86 @@
+const { StatusCodes, ReasonPhrases } = require('http-status-codes');
+
 const Post = require('../models/posts');
-const { validationResult } = require('express-validator')
+const CError = require('../errors/customeError');
+const { wrapIt } = require('../errors/errorWrapper');
+const { validate } = require('./helpers/general');
+
+
 
 module.exports.getPosts = async(req, res, next)=> {
     let posts = [];
+
     try {
         posts = await Post.find();
     } catch(err) {
-        return res.status(500).json({ message: err.message });
+        throw new CError(ReasonPhrases.INTERNAL_SERVER_ERROR);
     }
-    return res.status(200).json(posts);
+    return res.status(StatusCodes.OK).json(posts);
 }
 
 
 module.exports.createPost = async(req, res, next) => {
-    const valid_messages = validationResult(req);
-
-    if (!valid_messages.isEmpty()) {
-        return res.status(422).json({ message: valid_messages.array() });
-    }
-
+    validate(req, res)
     const { title, content,imageUrl } = req.body;
-    let post = null;
-    try {
-        post = await Post.create({
+    
+    const post = await wrapIt( 
+    async() => {
+        return await Post.create({
             title,
             content,
             imageUrl
         });
-    } catch(err) {
-        return res.status(500).json({ message: err.message });
-    }
+    });
 
-    return res.json(post);
+    return res.status(StatusCodes.OK).json(post);
+}
+
+
+module.exports.retrivePost = async(req, res, next) => {
+    validate(req, res)
+
+    const postId = req.params.postId;
+    const post =  await getPostOrThrowError(postId);
+
+    return res.status(StatusCodes.OK).json(post);
+};
+
+
+module.exports.updatePost = async(req, res, next) => {
+    validate(req, res);
+
+    const { title, content, imageUrl } = req.body;
+    
+    const postId = req.params.postId;
+    const post = getPostOrThrowError(postId);
+
+    post.title = title;
+    post.content = content;
+    post.imageUrl =  imageUrl;
+
+    await post.save();
+
+    return res.status(StatusCodes.OK).json(post);
+}
+
+module.exports.deletePost = async(req, res, next) => {
+    validate(req, res);
+
+    const postId = req.params.postId;
+    const post = getPostOrThrowError(postId);
+
+    await post.deleteOne();
+    return res.status(StatusCodes.NO_CONTENT).json({ message: "delete successfully"});
+};
+
+
+
+const getPostOrThrowError = async (postId) => {
+    return await wrapIt(async()=> {
+        const post = await Post.findById(postId);
+        if (!post) {
+            throw new CError(ReasonPhrases.NOT_FOUND, StatusCodes.NOT_FOUND);
+        }
+        return post;
+    })
 }
