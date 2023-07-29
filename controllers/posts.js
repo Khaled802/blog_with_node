@@ -9,13 +9,7 @@ const { isCreatorOrReadOnly } = require('../permissions/main');
 
 
 module.exports.getPosts = async(req, res, next)=> {
-    let posts = [];
-
-    try {
-        posts = await Post.find();
-    } catch(err) {
-        throw new CError(ReasonPhrases.INTERNAL_SERVER_ERROR);
-    }
+    const posts  = await Post.find();
     return res.status(StatusCodes.OK).json(posts);
 }
 
@@ -24,17 +18,14 @@ module.exports.createPost = async(req, res, next) => {
     validate(req, res)
     const { title, content,imageUrl } = req.body;
     
-    const post = await wrapIt( 
-    async() => {
-        return await Post.create({
-            title,
-            content,
-            imageUrl
-        });
+    const post = await Post.create({
+        title,
+        content,
+        imageUrl
     });
 
     return res.status(StatusCodes.OK).json(post);
-}
+};
 
 
 module.exports.retrivePost = async(req, res, next) => {
@@ -82,12 +73,10 @@ module.exports.deletePost = async(req, res, next) => {
 
 
 const getPostOrThrowError = async (postId) => {
-    return await wrapIt(async()=> {
-        const post = await Post.findById(postId);
-        console.log(post)
-        if (!post) {
-            throw new CError(ReasonPhrases.NOT_FOUND, StatusCodes.NOT_FOUND);
-        }
-        return post;
-    })
+    const post = await Post.findById(postId);
+
+    if (!post) {
+        throw new CError(ReasonPhrases.NOT_FOUND, StatusCodes.NOT_FOUND);
+    }
+    return post;
 }

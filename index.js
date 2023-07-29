@@ -8,7 +8,8 @@ const postsRouter = require('./routes/posts');
 const authRouter = require('./routes/auth');
 const CError = require('./errors/customeError');
 const { StatusCodes } = require('http-status-codes');
-const { isAuth } = require('./permissions/main')
+const { isAuth } = require('./permissions/main');
+const { wrapIt } = require('./errors/errorWrapper')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,7 +19,7 @@ app.use(express.json());
 
 
 
-app.use('/api/posts', isAuth, postsRouter);
+app.use('/api/posts', wrapIt(isAuth), postsRouter);
 app.use('/api/auth', authRouter);
 
 

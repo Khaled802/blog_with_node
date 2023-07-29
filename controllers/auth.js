@@ -10,13 +10,8 @@ module.exports.register = async (req, res, next) => {
     validate(req, res);
 
     const { email, username, password } = req.body;
-
-    await wrapIt(
-        async () => {
-            const user = await User.create({ email, username, password });
-            return res.status(StatusCodes.OK).json(user);
-        }
-    );   
+    const user = await User.create({ email, username, password });
+    return res.status(StatusCodes.OK).json(user);   
 }
 
 
@@ -25,17 +20,13 @@ module.exports.login = async (req, res, next) => {
 
     const { email, password } = req.body;
 
-    await wrapIt(
-        async () => {
-            const user = await User.findOne({ email });
-            if (user == null) {
-                throw new CError('user with this email is not found', StatusCodes.NOT_FOUND);
-            }
-            if (!user.isCorrectPassword(password)) {
-                throw new CError('the password is wrong', StatusCodes.BAD_REQUEST);
-            }
-            const jwtToken = await generateToken({ id: user._id, email: user.email });
-            res.status(StatusCodes.OK).json({ jwtToken });
-        }
-    )
+    const user = await User.findOne({ email });
+    if (user == null) {
+        throw new CError('user with this email is not found', StatusCodes.NOT_FOUND);
+    }
+    if (!await user.isCorrectPassword(password)) {
+        throw new CError('the password is wrong', StatusCodes.BAD_REQUEST);
+    }
+    const jwtToken = await generateToken({ id: user._id, email: user.email });
+    res.status(StatusCodes.OK).json({ jwtToken });
 }
