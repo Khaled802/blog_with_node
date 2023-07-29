@@ -5,6 +5,10 @@ require('express-async-errors');
 require('dotenv').config();
 
 const postsRouter = require('./routes/posts');
+const authRouter = require('./routes/auth');
+const CError = require('./errors/customeError');
+const { StatusCodes } = require('http-status-codes');
+const { isAuth } = require('./permissions/main')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,11 +16,19 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 
-app.use('/api', postsRouter);
+
+
+app.use('/api/posts', isAuth, postsRouter);
+app.use('/api/auth', authRouter);
+
 
 
 app.use((err, req, res, next) => {
+    if (!(err instanceof CError)){
+        return res.status(500).json(err.message); 
+    }
     const result = { error: err.getMessage() };
+    console.log(err);
     if (err.getMsgList())
         result.msgList = err.getMsgList()
 
@@ -24,7 +36,7 @@ app.use((err, req, res, next) => {
 });
 
 const startServer = async()=> {
-    const mongoUrl = await process.env.MONGO_URL;
+    const mongoUrl = process.env.MONGO_URL;
     try {
         const conn = await mongoose.connect(mongoUrl);
         app.listen(PORT, console.log(`server started at http://localhost:${PORT}`));

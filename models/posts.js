@@ -13,6 +13,10 @@ const PostSchema = new Schema({
     imageUrl: {
         type: String,
         required: true
+    },
+    creatorId: {
+        type: Object,
+        ref: 'User'
     }
 }, { timestamps: true });
 

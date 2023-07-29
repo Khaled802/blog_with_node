@@ -4,6 +4,7 @@ const Post = require('../models/posts');
 const CError = require('../errors/customeError');
 const { wrapIt } = require('../errors/errorWrapper');
 const { validate } = require('./helpers/general');
+const { isCreatorOrReadOnly } = require('../permissions/main');
 
 
 
@@ -37,10 +38,12 @@ module.exports.createPost = async(req, res, next) => {
 
 
 module.exports.retrivePost = async(req, res, next) => {
-    validate(req, res)
-
+    validate(req, res);
+    
     const postId = req.params.postId;
     const post =  await getPostOrThrowError(postId);
+    await isCreatorOrReadOnly(req, res, next, post.creatorId);
+
 
     return res.status(StatusCodes.OK).json(post);
 };
@@ -52,7 +55,8 @@ module.exports.updatePost = async(req, res, next) => {
     const { title, content, imageUrl } = req.body;
     
     const postId = req.params.postId;
-    const post = getPostOrThrowError(postId);
+    const post = await getPostOrThrowError(postId);
+    await isCreatorOrReadOnly(req, res, next, post.creatorId);
 
     post.title = title;
     post.content = content;
@@ -67,7 +71,9 @@ module.exports.deletePost = async(req, res, next) => {
     validate(req, res);
 
     const postId = req.params.postId;
-    const post = getPostOrThrowError(postId);
+    const post = await getPostOrThrowError(postId);
+    await isCreatorOrReadOnly(req, res, next, post.creatorId);
+
 
     await post.deleteOne();
     return res.status(StatusCodes.NO_CONTENT).json({ message: "delete successfully"});
@@ -78,6 +84,7 @@ module.exports.deletePost = async(req, res, next) => {
 const getPostOrThrowError = async (postId) => {
     return await wrapIt(async()=> {
         const post = await Post.findById(postId);
+        console.log(post)
         if (!post) {
             throw new CError(ReasonPhrases.NOT_FOUND, StatusCodes.NOT_FOUND);
         }
