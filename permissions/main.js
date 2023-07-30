@@ -12,14 +12,21 @@ module.exports.isAuth = async (req, res, next)=> {
     return next();
 }
 
-module.exports.isCreatorOrReadOnly = async (req, res, next, creatorId) => {
-    if (SAVE_METHODS.includes(req.method)) {
-        return
-    }
+module.exports.isCreatorOrReadOnly = (Model) => {
+    return async (req, res, next) => {
+        const objId = req.params.id;
+        const obj = await Model.findById(objId);
+        const creatorId = obj.creatorId;
+        console.log(objId, creatorId);
 
-    const id = req.user.id;
-    if (creatorId != id) {
-        throw new CError('You don\'t have the permission for this operation', StatusCodes.FORBIDDEN);
+        if (SAVE_METHODS.includes(req.method)) {
+            return next();
+        }
+    
+        const id = req.user.id;
+        if (creatorId != id) {
+            throw new CError('You don\'t have the permission for this operation', StatusCodes.FORBIDDEN);
+        }
+        return next();
     }
-    return
 }

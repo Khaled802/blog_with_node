@@ -36,7 +36,7 @@ module.exports.createPost = async(req, res, next) => {
 module.exports.retrivePost = async(req, res, next) => {
     validate(req, res);
     
-    const postId = req.params.postId;
+    const postId = req.params.id;
     const post =  await getPostOrThrowError(postId);
     await isCreatorOrReadOnly(req, res, next, post.creatorId);
 
@@ -50,7 +50,7 @@ module.exports.updatePost = async(req, res, next) => {
 
     const { title, content, imageUrl } = req.body;
     
-    const postId = req.params.postId;
+    const postId = req.params.id;
     const post = await getPostOrThrowError(postId);
     await isCreatorOrReadOnly(req, res, next, post.creatorId);
 
@@ -66,7 +66,7 @@ module.exports.updatePost = async(req, res, next) => {
 module.exports.deletePost = async(req, res, next) => {
     validate(req, res);
 
-    const postId = req.params.postId;
+    const postId = req.params.id;
     const post = await getPostOrThrowError(postId);
     await isCreatorOrReadOnly(req, res, next, post.creatorId);
 
