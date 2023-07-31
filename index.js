@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 require('express-async-errors');
+const { graphqlHTTP } = require("express-graphql");
 
 require('dotenv').config();
 
@@ -9,7 +10,9 @@ const authRouter = require('./routes/auth');
 const CError = require('./errors/customeError');
 const { StatusCodes } = require('http-status-codes');
 const { isAuth } = require('./permissions/main');
-const { wrapIt } = require('./errors/errorWrapper')
+const { wrapIt } = require('./errors/errorWrapper');
+const schema = require('./graphql/schema');
+const resolver = require('./graphql/resolvers');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,12 +20,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 
-
-
-app.use('/api/posts', wrapIt(isAuth), postsRouter);
+app.use('/api/posts', isAuth, postsRouter);
 app.use('/api/auth', authRouter);
-
-
+app.use('/graphql', isAuth, graphqlHTTP({
+    schema,
+    rootValue: resolver,
+    graphiql: true
+}));
 
 app.use((err, req, res, next) => {
     if (!(err instanceof CError)){
