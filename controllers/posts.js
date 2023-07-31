@@ -38,8 +38,6 @@ module.exports.retrivePost = async(req, res, next) => {
     
     const postId = req.params.id;
     const post =  await getPostOrThrowError(postId);
-    await isCreatorOrReadOnly(req, res, next, post.creatorId);
-
 
     return res.status(StatusCodes.OK).json(post);
 };
@@ -52,7 +50,6 @@ module.exports.updatePost = async(req, res, next) => {
     
     const postId = req.params.id;
     const post = await getPostOrThrowError(postId);
-    await isCreatorOrReadOnly(req, res, next, post.creatorId);
 
     post.title = title;
     post.content = content;
@@ -68,7 +65,6 @@ module.exports.deletePost = async(req, res, next) => {
 
     const postId = req.params.id;
     const post = await getPostOrThrowError(postId);
-    await isCreatorOrReadOnly(req, res, next, post.creatorId);
 
     const creator = await getUserOrError(post.creatorId);
     
