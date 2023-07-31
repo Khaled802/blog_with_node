@@ -1,11 +1,11 @@
 # Blog
-
 It is RESTFUL API using node.js 
 
 
 ## Tools & packages
    - node.js
    - express.js
+   - graphql
    - JWT
    - MongoDB
    - dotenv
@@ -16,6 +16,10 @@ It is RESTFUL API using node.js
 ## Building
 I used MVC pattern to build this API,
 Using Clean code to avoid messy code and make it easy to read and edit, using validator for requists, make authentication and autorization.
+
+## APIs
+   1. Restful APIs
+   2. GraphQL
 
 ## error handling
    - using "express-async-errors" package
