@@ -11,6 +11,8 @@ It is RESTFUL API using node.js
    - dotenv
    - bcrypt
    - express-validator
+   - mocha
+   - chai
 
 
 ## Building
@@ -34,6 +36,6 @@ Using Clean code to avoid messy code and make it easy to read and edit, using va
    - make sure that the object that will be edited or deleted is done by its creator
 
    
-
-
-
+## unite testing
+   - using mocha to make test 
+   - using chai to make checking
