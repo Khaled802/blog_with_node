@@ -3,7 +3,7 @@ const { StatusCodes } = require('http-status-codes');
 const { wrapIt} = require('../errors/errorWrapper');
 const CError = require('../errors/customeError')
 
-SAVE_METHODS = ['GET']
+SAFE_METHODS = ['GET']
 
 module.exports.isAuth = async (req, res, next)=> {
     const token = await getToken(req);
@@ -17,9 +17,8 @@ module.exports.isCreatorOrReadOnly = (Model) => {
         const objId = req.params.id;
         const obj = await Model.findById(objId);
         const creatorId = obj.creatorId;
-        console.log(objId, creatorId);
 
-        if (SAVE_METHODS.includes(req.method)) {
+        if (SAFE_METHODS.includes(req.method)) {
             return next();
         }
     
