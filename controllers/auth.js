@@ -7,8 +7,6 @@ const CError = require('../errors/customeError');
 const { generateToken } = require('./helpers/token')
 
 module.exports.register = async (req, res, next) => {
-    validate(req, res);
-
     const { email, username, password } = req.body;
     const user = await User.create({ email, username, password });
     return res.status(StatusCodes.OK).json(user);   
@@ -16,8 +14,6 @@ module.exports.register = async (req, res, next) => {
 
 
 module.exports.login = async (req, res, next) => {
-    validate(req, res);
-
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });

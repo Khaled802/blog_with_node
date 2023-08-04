@@ -14,7 +14,6 @@ module.exports.getPosts = async(req, res, next)=> {
 
 
 module.exports.createPost = async(req, res, next) => {
-    validate(req, res)
     const { title, content,imageUrl } = req.body;
     
     const creator = await getCurrentUserOrError(req);
@@ -34,8 +33,6 @@ module.exports.createPost = async(req, res, next) => {
 
 
 module.exports.retrivePost = async(req, res, next) => {
-    validate(req, res);
-    
     const postId = req.params.id;
     const post =  await getPostOrThrowError(postId);
 
@@ -44,8 +41,6 @@ module.exports.retrivePost = async(req, res, next) => {
 
 
 module.exports.updatePost = async(req, res, next) => {
-    validate(req, res);
-
     const { title, content, imageUrl } = req.body;
     
     const postId = req.params.id;
@@ -61,8 +56,6 @@ module.exports.updatePost = async(req, res, next) => {
 }
 
 module.exports.deletePost = async(req, res, next) => {
-    validate(req, res);
-
     const postId = req.params.id;
     const post = await getPostOrThrowError(postId);
 

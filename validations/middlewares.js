@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const CError = require('../errors/customeError');
 
-module.exports.validateMiddleware = (req, res, next) => {
+module.exports.validateMiddleware = async (req, res, next) => {
     const valid_messages = validationResult(req);
 
     if (!valid_messages.isEmpty()) {
